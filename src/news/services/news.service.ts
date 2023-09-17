@@ -96,11 +96,9 @@ export class NewsService {
                     $match: match,
                 });
             }
-            console.log(q);
             const result = await this.model
                 .aggregate(q)
                 .exec();
-            console.log(result);
             if (result) return result[0]
             return {message: "Not found"}
         } catch (e) {
