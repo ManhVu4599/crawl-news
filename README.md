@@ -76,3 +76,31 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](LICENSE).
+
+## api list news 
+-example:
+  curl --location 'http://localhost:3001/news?page=0&limit=10&topic_id=650574426249265cb92aaaf9&subtopic_id=65069e0149160674293a9b7a'
+## api crawl list news
+-example:
+  curl --location 'http://localhost:3001/news/crawl' \
+--header 'Content-Type: application/json' \
+--data '
+    {
+        "url": "https://dantri.com.vn/",
+        "card": "article[class*='\''article-item'\'']",
+        "card_link": "a",
+        "card_title": "a",
+        "card_img": "img"
+    }'
+
+## api crawl detail news
+-example: curl --location --request PUT 'http://localhost:3001/news/crawl-detail/6505aba929cd8994f85ee1cf' \
+--header 'Content-Type: application/json' \
+--data '
+    {
+        "card": "article[class='\''singular-container'\'']",
+        "card_content": ".singular-content",
+        "card_topic": "ul.breadcrumbs > li",
+        "card_topic_title": "a",
+        "card_img": "figure[class*='\''image align-center'\'']"
+    }'

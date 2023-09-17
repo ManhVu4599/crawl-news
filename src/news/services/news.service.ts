@@ -28,7 +28,7 @@ export class NewsService {
             if (subtopic_id) {
                 match['subTopic_id'] = new mongoose.Types.ObjectId(subtopic_id);
             }
-            const skip = Number(limit) * (Number(page + 1));
+            const skip = Number(limit) * (Number(page) + 1);
             const q: any = [
                 {
                     $lookup: {
@@ -71,6 +71,7 @@ export class NewsService {
                         items: {
                             $slice: [
                                 '$data',
+                                // skip,
                                 {
                                     $ifNull: [Number(limit), '$total.createdAt'],
                                 },
