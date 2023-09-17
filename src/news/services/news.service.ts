@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { NewsDocument } from '../schemas/news.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import puppeteer from 'puppeteer';
 import { ListNewsDto } from '../dtos/listNews.dto';
@@ -23,17 +23,17 @@ export class NewsService {
             const { limit, page, topic_id, subtopic_id } = query
             const match = {};
             if (topic_id) {
-                match['topic_id'] = topic_id;
+                match['topic_id'] =  new mongoose.Types.ObjectId(topic_id);
             }
             if (subtopic_id) {
-                match['subtopic_id'] = subtopic_id;
+                match['subTopic_id'] = new mongoose.Types.ObjectId(subtopic_id);
             }
             const skip = Number(limit) * (Number(page + 1));
             const q: any = [
                 {
                     $lookup: {
                         from: 'topics',
-                        localField: 'topicField',
+                        localField: 'topic_id',
                         foreignField: '_id',
                         as: 'topic',
                     },
@@ -41,7 +41,7 @@ export class NewsService {
                 {
                     $lookup: {
                         from: 'subtopics',
-                        localField: 'subTopicField',
+                        localField: 'subTopic_id',
                         foreignField: '_id',
                         as: 'subtopic',
                     },
@@ -71,9 +71,8 @@ export class NewsService {
                         items: {
                             $slice: [
                                 '$data',
-                                +skip,
                                 {
-                                    $ifNull: [+limit, '$total.createdAt'],
+                                    $ifNull: [Number(limit), '$total.createdAt'],
                                 },
                             ],
                         },
@@ -83,11 +82,11 @@ export class NewsService {
                         },
                         totalPages: {
                             $ceil: {
-                                $divide: ['$total.createdAt', +limit],
+                                $divide: ['$total.createdAt', Number(limit)],
                             },
                         },
                         currentPage: {
-                            $literal: +skip / +limit + 1,
+                            $literal: +skip / Number(limit) + 1,
                         },
                     },
                 },
@@ -97,10 +96,13 @@ export class NewsService {
                     $match: match,
                 });
             }
+            console.log(q);
             const result = await this.model
                 .aggregate(q)
                 .exec();
+            console.log(result);
             if (result) return result[0]
+            return {message: "Not found"}
         } catch (e) {
             throw new Error(e);
         }
@@ -137,10 +139,12 @@ export class NewsService {
 
     }
 
-    async crawlDetail(data: crawlDetailDto, id) {
+    async crawlDetail(data: crawlDetailDto, id: string) {
         try {
             const news = await this.model.findById(id);
-
+            if(!news) {
+                throw new Error("news not found");
+            }
             const url = news.link || 'https://dantri.com.vn/'
             const card = data.card || 'article[class="singular-container"]'
             const card_content = data.card_content || '.singular-content';

@@ -32,10 +32,10 @@ export class News extends BaseSchema {
     @Prop({ type: Date, default: Date.now, index: true })
     time: Date;
 
-    @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'topic_id' }] })
+    @Prop({ type: mongoose.Schema.Types.ObjectId })
     topic_id: Topic;
 
-    @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'subTopic_id' }] })
+    @Prop({ type: mongoose.Schema.Types.ObjectId })
     subTopic_id: SubTopic;
 }
 
